@@ -11,6 +11,7 @@ const Recorder = ({ onRecordingUploaded }) => {
   const timerRef = useRef(null);
 
   const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const startRecording = async () => {
     try {
@@ -111,7 +112,7 @@ const Recorder = ({ onRecordingUploaded }) => {
       const formData = new FormData();
       formData.append('video', blob, `recording-${Date.now()}.webm`);
       
-      const response = await fetch('http://localhost:5000/api/recordings', {
+      const response = await fetch(`${API_URL}/api/recordings`, {
         method: 'POST',
         body: formData
       });
