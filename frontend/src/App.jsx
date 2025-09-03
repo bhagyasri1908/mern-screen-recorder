@@ -11,19 +11,21 @@ function App() {
     fetchRecordings();
   }, []);
 
-  const fetchRecordings = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/recordings');
-      const data = await response.json();
-      setRecordings(data);
-    } catch (error) {
-      console.error('Error fetching recordings:', error);
-    }
-  };
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const handleRecordingUploaded = () => {
-    fetchRecordings();
-  };
+const fetchRecordings = async () => {
+  try {
+    const response = await fetch(`${API_URL}/api/recordings`);
+    const data = await response.json();
+    setRecordings(data);
+  } catch (error) {
+    console.error("Error fetching recordings:", error);
+  }
+};
+
+const handleRecordingUploaded = () => {
+  fetchRecordings();
+};
 
   return (
     <div className="app">
