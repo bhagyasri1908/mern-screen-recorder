@@ -1,0 +1,20 @@
+# dependencies
+/node_modules
+
+# build / dist
+/build
+/dist
+
+# SQLite database
+/database.db
+
+# Uploaded files (recordings)
+/uploads
+
+# env files
+.env
+
+# logs
+*.log
+logs
+npm-debug.log
