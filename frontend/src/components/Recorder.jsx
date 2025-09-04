@@ -1,9 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-const Recorder = ({ onRecordingUploaded, api_url }) => {
-  // Use API_URL from prop, fallback to env variable or localhost
-  const API_URL = api_url || process.env.REACT_APP_API_URL || "http://localhost:5000";
-
+const Recorder = ({ onRecordingUploaded }) => {
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -12,44 +9,65 @@ const Recorder = ({ onRecordingUploaded, api_url }) => {
   const [previewUrl, setPreviewUrl] = useState('');
   
   const timerRef = useRef(null);
+
   const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 
   const startRecording = async () => {
     try {
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
+      // Get display media (screen)
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { mediaSource: 'screen' }
+      });
+      
+      // Get microphone audio
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+      
+      // Combine both streams
       const combinedStream = new MediaStream([
         ...displayStream.getVideoTracks(),
         ...audioStream.getAudioTracks()
       ]);
-
-      const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm; codecs=vp9,opus' });
+      
+      // Create media recorder
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: 'video/webm; codecs=vp9,opus'
+      });
+      
       const chunks = [];
-
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
       };
-
+      
       recorder.onstop = () => {
         setRecordedChunks(chunks);
-        setPreviewUrl(URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })));
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        setPreviewUrl(URL.createObjectURL(blob));
+        
+        // Stop all tracks
         combinedStream.getTracks().forEach(track => track.stop());
       };
-
+      
       recorder.start();
       setMediaRecorder(recorder);
       setRecording(true);
       setRecordedChunks([]);
       setPreviewUrl('');
-
+      
+      // Start timer
       let seconds = 0;
       timerRef.current = setInterval(() => {
         seconds++;
         setTimer(seconds);
-        if (seconds >= MAX_RECORDING_TIME) stopRecording();
+        
+        if (seconds >= MAX_RECORDING_TIME) {
+          stopRecording();
+        }
       }, 1000);
-
+      
     } catch (error) {
       console.error('Error starting recording:', error);
       setUploadStatus('Error: ' + error.message);
@@ -68,11 +86,12 @@ const Recorder = ({ onRecordingUploaded, api_url }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const downloadRecording = () => {
     if (recordedChunks.length === 0) return;
+    
     const blob = new Blob(recordedChunks, { type: 'video/webm' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -87,31 +106,25 @@ const Recorder = ({ onRecordingUploaded, api_url }) => {
     
     try {
       setUploadStatus('Uploading...');
+      
       const blob = new Blob(recordedChunks, { type: 'video/webm' });
       const formData = new FormData();
       formData.append('video', blob, `recording-${Date.now()}.webm`);
-
-      const response = await fetch(`${API_URL}/api/recordings`, {
+      
+      const response = await fetch('http://localhost:5000/api/recordings', {
         method: 'POST',
         body: formData
       });
-
+      
       if (response.ok) {
         setUploadStatus('Upload successful!');
         setRecordedChunks([]);
         setPreviewUrl('');
         onRecordingUploaded();
       } else {
-        let errorMsg = 'Upload failed';
-        try {
-          const errorData = await response.json();
-          errorMsg += ': ' + errorData.error;
-        } catch {
-          errorMsg += ': ' + response.statusText;
-        }
-        setUploadStatus(errorMsg);
+        const error = await response.json();
+        setUploadStatus('Upload failed: ' + error.error);
       }
-
     } catch (error) {
       console.error('Error uploading recording:', error);
       setUploadStatus('Upload failed: ' + error.message);
@@ -131,26 +144,40 @@ const Recorder = ({ onRecordingUploaded, api_url }) => {
         </button>
         
         {recording && (
-          <div className="timer">Recording: {formatTime(timer)}</div>
+          <div className="timer">
+            Recording: {formatTime(timer)}
+          </div>
         )}
       </div>
       
       {previewUrl && (
         <div className="preview-container">
           <h3 className="preview-title">Preview</h3>
-          <video src={previewUrl} controls className="preview-video" />
-
+          <video
+            src={previewUrl}
+            controls
+            className="preview-video"
+          />
+          
           <div className="action-buttons">
-            <button onClick={downloadRecording} className="action-button download-button">
+            <button
+              onClick={downloadRecording}
+              className="action-button download-button"
+            >
               Download
             </button>
             
-            <button onClick={uploadRecording} className="action-button upload-button">
+            <button
+              onClick={uploadRecording}
+              className="action-button upload-button"
+            >
               Upload to Server
             </button>
           </div>
-
-          {uploadStatus && <div className="status-message">{uploadStatus}</div>}
+          
+          {uploadStatus && (
+            <div className="status-message">{uploadStatus}</div>
+          )}
         </div>
       )}
     </div>
