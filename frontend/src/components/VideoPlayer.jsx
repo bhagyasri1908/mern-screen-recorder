@@ -1,8 +1,8 @@
 import React from 'react';
 
-const VideoPlayer = ({ recording }) => {
-  // Use env var in production, fallback to localhost for dev
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const VideoPlayer = ({ recording, api_url }) => {
+  // Use api_url prop in production, fallback to localhost for dev
+  const API_URL = api_url || "http://localhost:5000";
   const videoUrl = `${API_URL}/api/recordings/${recording.id}`;
 
   const formatFileSize = (bytes) => {

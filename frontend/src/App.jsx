@@ -36,7 +36,7 @@ function App() {
       
       <div className="app-container">
         {/* Pass API_URL to Recorder */}
-        <Recorder apiUrl={API_URL} onRecordingUploaded={handleRecordingUploaded} />
+        <Recorder api_url={API_URL} onRecordingUploaded={handleRecordingUploaded} />
         
         <div className="recordings-section">
           <h2 className="section-title">Recorded Sessions</h2>
@@ -44,6 +44,7 @@ function App() {
             recordings={recordings} 
             onSelectRecording={setSelectedRecording}
             selectedRecording={selectedRecording}
+            api_url={API_URL} // Pass API_URL here as well
           />
         </div>
       </div>

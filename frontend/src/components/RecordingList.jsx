@@ -1,7 +1,7 @@
 import React from 'react';
 import VideoPlayer from './VideoPlayer';
 
-const RecordingList = ({ recordings, onSelectRecording, selectedRecording }) => {
+const RecordingList = ({ recordings, onSelectRecording, selectedRecording, api_url }) => {
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -10,9 +10,7 @@ const RecordingList = ({ recordings, onSelectRecording, selectedRecording }) => 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
+  const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
   if (recordings.length === 0) {
     return (
@@ -38,9 +36,7 @@ const RecordingList = ({ recordings, onSelectRecording, selectedRecording }) => 
                   <div className="recording-name">{recording.filename}</div>
                   <div className="recording-size">{formatFileSize(recording.filesize)}</div>
                 </div>
-                <div className="recording-date">
-                  {formatDate(recording.createdAt)}
-                </div>
+                <div className="recording-date">{formatDate(recording.createdAt)}</div>
               </li>
             ))}
           </ul>
@@ -49,7 +45,7 @@ const RecordingList = ({ recordings, onSelectRecording, selectedRecording }) => 
         <div>
           <h3 className="section-title">Playback</h3>
           {selectedRecording ? (
-            <VideoPlayer recording={selectedRecording} />
+            <VideoPlayer recording={selectedRecording} api_url={api_url} />
           ) : (
             <p className="select-recording">Select a recording to play it back</p>
           )}

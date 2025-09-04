@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 
-const Recorder = ({ onRecordingUploaded }) => {
+const Recorder = ({ onRecordingUploaded, api_url }) => {
+  // Use API_URL from prop, fallback to env variable or localhost
+  const API_URL = api_url || process.env.REACT_APP_API_URL || "http://localhost:5000";
+
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -10,9 +13,6 @@ const Recorder = ({ onRecordingUploaded }) => {
   
   const timerRef = useRef(null);
   const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
-
-  // Use environment variable in production, fallback to localhost
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const startRecording = async () => {
     try {
