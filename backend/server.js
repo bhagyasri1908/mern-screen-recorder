@@ -19,17 +19,17 @@ const db = new sqlite3.Database('./database.db', (err) => {
     console.error('Error opening database:', err.message);
   } else {
     console.log('Connected to SQLite database.');
-    db.run(CREATE TABLE IF NOT EXISTS recordings (
+    db.run(`CREATE TABLE IF NOT EXISTS recordings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       filename TEXT NOT NULL,
       filepath TEXT NOT NULL,
       filesize INTEGER NOT NULL,
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
   }
 });
 
-// Multer configuration for file uploads
+// Multer configuration for file uploads (local storage)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = './uploads';
@@ -122,7 +122,7 @@ app.get('/api/recordings/:id', (req, res) => {
       const chunksize = (end - start) + 1;
       const file = fs.createReadStream(filePath, { start, end });
       const head = {
-        'Content-Range': bytes ${start}-${end}/${fileSize},
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': chunksize,
         'Content-Type': 'video/webm',
@@ -142,5 +142,5 @@ app.get('/api/recordings/:id', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(Server running on port ${PORT});
+  console.log(`Server running on port ${PORT}`);
 });
