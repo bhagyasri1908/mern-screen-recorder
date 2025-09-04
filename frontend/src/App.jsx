@@ -7,25 +7,22 @@ function App() {
   const [recordings, setRecordings] = useState([]);
   const [selectedRecording, setSelectedRecording] = useState(null);
 
-  // Use environment variable for production, fallback to localhost for development
-  const API_URL = process.env.REACT_APP_API_URL;
-
   useEffect(() => {
     fetchRecordings();
   }, []);
 
   const fetchRecordings = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/recordings`);
+      const response = await fetch('http://localhost:5000/api/recordings');
       const data = await response.json();
       setRecordings(data);
     } catch (error) {
-      console.error("Error fetching recordings:", error);
+      console.error('Error fetching recordings:', error);
     }
   };
 
   const handleRecordingUploaded = () => {
-    fetchRecordings(); // Refresh the list after a new upload
+    fetchRecordings();
   };
 
   return (
@@ -35,8 +32,7 @@ function App() {
       </div>
       
       <div className="app-container">
-        {/* Pass API_URL to Recorder */}
-        <Recorder api_url={API_URL} onRecordingUploaded={handleRecordingUploaded} />
+        <Recorder onRecordingUploaded={handleRecordingUploaded} />
         
         <div className="recordings-section">
           <h2 className="section-title">Recorded Sessions</h2>
@@ -44,7 +40,6 @@ function App() {
             recordings={recordings} 
             onSelectRecording={setSelectedRecording}
             selectedRecording={selectedRecording}
-            api_url={API_URL} // Pass API_URL here as well
           />
         </div>
       </div>

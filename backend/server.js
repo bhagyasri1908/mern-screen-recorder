@@ -29,7 +29,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
   }
 });
 
-// Multer configuration for file uploads (local storage)
+// Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = './uploads';
